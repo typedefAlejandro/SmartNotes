@@ -90,6 +90,17 @@
   text-align: center;
 }
 
+.logout {
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.logout:hover {
+  color: #222;
+}
+
 .link {
   color: #fff;
   font-weight: 700;
