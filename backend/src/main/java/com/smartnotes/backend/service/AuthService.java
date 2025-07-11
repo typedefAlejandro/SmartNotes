@@ -101,4 +101,12 @@ public class AuthService {
     public void validaToken(String token) {
         Jwts.parser().setSigningKey("segredo-super-seguro").parseClaimsJws(token);
     }
+
+    public String getEmailFromToken(String token) {
+        return Jwts.parser()
+            .setSigningKey("segredo-super-seguro")
+            .parseClaimsJws(token)
+            .getBody()
+            .getSubject();
+    }
 }

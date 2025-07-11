@@ -20,7 +20,9 @@ import com.smartnotes.backend.model.dto.LoginDTO;
 import com.smartnotes.backend.model.dto.LoginLocationDTO;
 import com.smartnotes.backend.model.dto.RegisterDTO;
 import com.smartnotes.backend.model.entity.LoginLocation;
+import com.smartnotes.backend.model.entity.User;
 import com.smartnotes.backend.repository.LoginLocationRepository;
+import com.smartnotes.backend.repository.UserRepository;
 import com.smartnotes.backend.service.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,7 +31,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    
+    @Autowired private UserRepository userRepository;
     @Autowired private AuthService authService;
     @Autowired private LoginLocationRepository loginLocationRepository;
 
@@ -50,12 +52,14 @@ public class AuthController {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().body(Map.of("error", "Header de autorização ausente ou mal formatado"));
         }
-        
         String token = authorizationHeader.substring(7);
-
         try {
-            authService.validaToken(token);
-            return ResponseEntity.ok().build();
+            String email = authService.getEmailFromToken(token);
+            User user = userRepository.findByEmail(email).orElseThrow(() -> 
+                new RuntimeException("Usuário do token não encontrado no banco de dados")
+            );
+            Long userId = user.getId();
+            return ResponseEntity.ok(Map.of("userId", userId));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(Map.of("error", "Sessão inválida ou expirada"));
         }

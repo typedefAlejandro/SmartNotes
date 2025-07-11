@@ -6,13 +6,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface Note {
-  name: string;
+  title: string;
   content: string;
+  userId: number | null;
 }
 
 export default function NotePage() {
   const router = useRouter();
-  const [note, setNote] = useState<Note>({ name: "", content: "" });
+  const [note, setNote] = useState<Note>({ title: "", content: "", userId: null });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -30,6 +31,8 @@ export default function NotePage() {
           console.error("Sessão inválida ou expirada");
           router.push("/login");
         }
+        const data = await response.json();
+        setNote(prev => ({ ...prev, userId: data.userId }));
       } catch (error) {
         console.error("Falha na comunicação com a API", error);
         router.push("/login");
@@ -43,6 +46,31 @@ export default function NotePage() {
     router.push("/login");
   };
 
+  const handleSave = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    try {
+      const response = await fetch("http://localhost:8080/api/notes/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(note),
+      });
+      if (!response.ok) console.error("Erro ao salvar a nota");
+      await response.json();
+      alert("Nota salva com sucesso!");
+      setNote({ title: "", content: "", userId: null });
+    } catch (error) {
+      console.error("Erro ao salvar a nota:", error);
+      alert("Erro ao salvar a nota. Tente novamente.");
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.box}>
@@ -51,11 +79,18 @@ export default function NotePage() {
         </div>
         <input
           className={styles.input}
-          value={note.name}
-          onChange={e => setNote({ ...note, name: e.target.value })}
+          value={note.title}
+          onChange={e => setNote({ ...note, title: e.target.value })}
           placeholder="Digite o nome da nota"
         />
-        <a onClick={logout}>Sair</a>
+        <input
+          className={styles.input}
+          value={note.content}
+          onChange={e => setNote({ ...note, content: e.target.value })}
+          placeholder="Digite o conteúdo da nota"
+        />
+        <button className={styles.button} onClick={handleSave}>Salvar</button> 
+        <a className={styles.logout} onClick={logout}>Sair</a>
       </div>
     </div>
   );
