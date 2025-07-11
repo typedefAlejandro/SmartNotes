@@ -1,5 +1,6 @@
 package com.smartnotes.backend.service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,20 +8,29 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.smartnotes.backend.model.dto.RegisterDTO;
+import com.smartnotes.backend.model.entity.LoginLocation;
 import com.smartnotes.backend.model.entity.User;
+import com.smartnotes.backend.repository.LoginLocationRepository;
 import com.smartnotes.backend.repository.UserRepository;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private LoginLocationRepository loginLocationRepository;
+    
+    @Autowired
+    private IpInfoService ipInfoService;
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        public void register(RegisterDTO dto) {
+    public void register(RegisterDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email já cadastrado");
         }
@@ -32,7 +42,7 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public String login(String email, String password) {
+    public String login(String email, String password, HttpServletRequest request) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -40,7 +50,44 @@ public class AuthService {
             throw new RuntimeException("Senha inválida");
         }
 
-        return gerarTokenJwt(user);
+        // Captura IP e geolocalização
+        this.saveLoginLocation(user, request);
+
+        return this.gerarTokenJwt(user);
+    }
+    
+    private void saveLoginLocation(User user, HttpServletRequest request) {
+        try {
+            String clientIp = ipInfoService.extractClientIp(request);
+            var ipInfo = ipInfoService.getIpInfo(clientIp);
+            
+            LoginLocation loginLocation = new LoginLocation();
+            loginLocation.setUser(user);
+            loginLocation.setIp(clientIp);
+            loginLocation.setCity(ipInfo.getCity());
+            loginLocation.setRegion(ipInfo.getRegion());
+            loginLocation.setCountry(ipInfo.getCountry());
+            loginLocation.setTimezone(ipInfo.getTimezone());
+            loginLocation.setLoginDateTime(LocalDateTime.now());
+            
+            // Extrai latitude e longitude se disponível
+            if (ipInfo.getLoc() != null && !ipInfo.getLoc().isEmpty()) {
+                String[] coords = ipInfo.getLoc().split(",");
+                if (coords.length == 2) {
+                    try {
+                        loginLocation.setLatitude(Double.parseDouble(coords[0].trim()));
+                        loginLocation.setLongitude(Double.parseDouble(coords[1].trim()));
+                    } catch (NumberFormatException e) {
+                        // Ignora erro de parsing das coordenadas
+                    }
+                }
+            }
+            
+            loginLocationRepository.save(loginLocation);
+        } catch (Exception e) {
+            // Log do erro mas não falha o login
+            System.err.println("Erro ao salvar localização do login: " + e.getMessage());
+        }
     }
 
     private String gerarTokenJwt(User user) {
