@@ -102,3 +102,20 @@
 .link:hover {
     color: #222;
 }
+
+/* Estilos para campos com erro */
+.inputError {
+    border: 2px solid #ff4444 !important;
+    box-shadow: 0 0 0 1px #ff4444 !important;
+}
+
+/* Estilos para mensagens de erro */
+.errorMessage {
+    color: #ff4444;
+    font-size: 0.875rem;
+    margin-top: -12px;
+    margin-bottom: 8px;
+    text-align: left;
+    width: 100%;
+    font-weight: 500;
+}
