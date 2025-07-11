@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.smartnotes.backend.model.dto.NoteDTO;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -39,4 +41,8 @@ public class Note {
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
+
+  public NoteDTO toDTO() {
+    return new NoteDTO(id, user.getId(), content, title, createdAt);
+  }
 }

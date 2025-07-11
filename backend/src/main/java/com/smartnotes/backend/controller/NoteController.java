@@ -1,7 +1,6 @@
 package com.smartnotes.backend.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,22 +42,11 @@ public class NoteController {
     return ResponseEntity.ok(createdNote);
   }
 
-  @GetMapping("/find-all")
-  public ResponseEntity<?> findAll(
-    // @RequestHeader("Authorization") String authorizationHeader
-  ) {
-    // System.out.println("Authorization Header: " + authorizationHeader);
-    // String token = authorizationHeader.substring(7);
-    // authService.validaToken(token);
-    List<NoteDTO> notes = noteRepository.findAll();
-    return ResponseEntity.ok(Map.of("notes", notes));
-  }
-
   @GetMapping("/title")
   public ResponseEntity<List<NoteDTO>> findByUserIdAndTitle(
     @RequestHeader("Authorization") String authorizationHeader,
     @RequestParam Long userId,
-    @RequestParam(required = false) String title
+    @RequestParam String title
   ) {
     String token = authorizationHeader.substring(7);
     authService.validaToken(token);
