@@ -81,7 +81,10 @@ export default function Home() {
         alignItems: 'center',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
-        <button className={styles.button} style={{ width: 90, height: 32, fontSize: 15, marginLeft: 16, textAlign: 'center' }} onClick={() => router.push('/nova-nota')}>Nova Nota</button>
+        <div style={{ display: 'flex', gap: 8, marginLeft: 16 }}>
+          <button className={styles.button} style={{ width: 90, height: 32, fontSize: 15, textAlign: 'center' }} onClick={() => router.push('/nova-nota')}>Nova Nota</button>
+          <button className={styles.button} style={{ width: 132, height: 32, fontSize: 15, textAlign: 'center' }} onClick={() => router.push('/acessos')}>Verificar Acessos</button>
+        </div>
         <button className={styles.button} style={{ width: 90, height: 32, fontSize: 15, marginRight: 16, textAlign: 'center' }} onClick={logout}>Sair</button>
       </nav>
       {/* Espaço para não sobrepor a navbar fixa */}

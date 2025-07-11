@@ -6,14 +6,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smartnotes.backend.model.dto.LoginDTO;
@@ -65,24 +62,22 @@ public class AuthController {
         }
     }
     
-    @GetMapping("/login-history")
-    public ResponseEntity<List<LoginLocationDTO>> getLoginHistory(@RequestParam String email) {
-        List<LoginLocation> loginHistory = loginLocationRepository.findByUserEmailOrderByLoginDateTimeDesc(email);
-        List<LoginLocationDTO> dtoList = loginHistory.stream()
-            .map(this::convertToDTO)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(dtoList);
-    }
-    
-    @GetMapping("/my-login-history")
-    public ResponseEntity<List<LoginLocationDTO>> getMyLoginHistory() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
-        List<LoginLocation> loginHistory = loginLocationRepository.findByUserEmailOrderByLoginDateTimeDesc(userEmail);
-        List<LoginLocationDTO> dtoList = loginHistory.stream()
-            .map(this::convertToDTO)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(dtoList);
+    @GetMapping("/my-login-history-token")
+    public ResponseEntity<List<LoginLocationDTO>> getMyLoginHistoryWithToken(@RequestHeader("Authorization") String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().build();
+        }
+        String token = authorizationHeader.substring(7);
+        try {
+            String email = authService.getEmailFromToken(token);
+            List<LoginLocation> loginHistory = loginLocationRepository.findByUserEmailOrderByLoginDateTimeDesc(email);
+            List<LoginLocationDTO> dtoList = loginHistory.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+            return ResponseEntity.ok(dtoList);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).build();
+        }
     }
     
     private LoginLocationDTO convertToDTO(LoginLocation loginLocation) {

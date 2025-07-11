@@ -77,27 +77,4 @@ public class NoteController {
     List<NoteDTO> notes = noteService.findByUserIdAndTitle(userId, title);
     return ResponseEntity.ok(notes);
   }
-
-  @GetMapping("/content")
-  public ResponseEntity<List<NoteDTO>> findByUserIdAndContent(
-    @RequestHeader("Authorization") String authorizationHeader,
-    @RequestParam Long userId,
-    @RequestParam(required = false) String content
-  ) {
-    String token = authorizationHeader.substring(7);
-    authService.validaToken(token);
-    List<NoteDTO> notes = noteService.findByUserIdAndContent(userId, content);
-    return ResponseEntity.ok(notes);
-  }
-
-  @GetMapping("/user")
-  public ResponseEntity<List<NoteDTO>> findByUserId(
-    @RequestHeader("Authorization") String authorizationHeader,
-    @RequestParam Long userId
-  ) {
-    String token = authorizationHeader.substring(7);
-    authService.validaToken(token);
-    List<NoteDTO> notes = noteService.findByUserId(userId);
-    return ResponseEntity.ok(notes);
-  }
 }
