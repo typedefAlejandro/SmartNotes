@@ -35,4 +35,12 @@ public class NoteService {
     if(notes == null) return new ArrayList<>();
     return notes;
   }
+
+  public List<NoteDTO> findByUserId(Long userId) {
+    Optional<User> user = userRepository.findById(userId);
+    if(!user.isPresent()) throw new RuntimeException("Usuário não encontrado");
+    List<NoteDTO> notes = noteRepository.findByUserId(userId);
+    if(notes == null) return new ArrayList<>();
+    return notes;
+  }
 }

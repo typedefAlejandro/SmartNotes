@@ -58,6 +58,17 @@ public class NoteRepository {
       .collect(Collectors.toList());
   }
 
+  @SuppressWarnings("unchecked")
+  public List<NoteDTO> findByUserId(Long userId) {
+    String sql = "SELECT * FROM notes WHERE user_id = :userId";
+    List<Note> notes = entityManager.createNativeQuery(sql, Note.class)
+      .setParameter("userId", userId)
+      .getResultList();
+    return notes.stream()
+      .map(note -> new NoteDTO(note.getId(), note.getUser().getId(), note.getContent(), note.getTitle(), note.getCreatedAt()))
+      .collect(Collectors.toList());
+  }
+
   @Transactional
   public void deleteById(Long id) {
     String sql = "DELETE FROM notes WHERE id = :id";

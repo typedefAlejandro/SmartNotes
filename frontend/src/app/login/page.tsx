@@ -19,7 +19,7 @@ export default function LoginPage() {
     if (res.ok) {
       const data = await res.json();
       localStorage.setItem("token", data.token);
-      router.push("/nova-nota");
+      router.push("/");
     } else {
       alert("Email ou senha inválidos!");
     }

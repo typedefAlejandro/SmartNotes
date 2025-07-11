@@ -73,6 +73,25 @@ export default function NotePage() {
 
   return (
     <div className={styles.container}>
+      {/* Navbar fina e fixa no topo */}
+      <nav style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        zIndex: 100,
+        background: 'linear-gradient(90deg, rgba(255,255,255,0.92) 60%, rgba(255,255,255,0.7) 100%)',
+        padding: '8px 0',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+      }}>
+        <button className={styles.button} style={{ width: 90, height: 32, fontSize: 15, marginLeft: 16, textAlign: 'center' }} onClick={() => router.push('/')}>Ver Notas</button>
+        <button className={styles.button} style={{ width: 90, height: 32, fontSize: 15, marginRight: 16, textAlign: 'center' }} onClick={logout}>Sair</button>
+      </nav>
+      {/* Espaço para não sobrepor a navbar fixa */}
+      <div style={{ height: 48 }}></div>
       <div className={styles.box}>
         <div className={styles.logoImgArea}>
           <Image src="/smart_notes_logo1.jpeg" alt="Smart Notes Logo" width={160} height={120} priority />
@@ -89,8 +108,7 @@ export default function NotePage() {
           onChange={e => setNote({ ...note, content: e.target.value })}
           placeholder="Digite o conteúdo da nota"
         />
-        <button className={styles.button} onClick={handleSave}>Salvar</button> 
-        <a className={styles.logout} onClick={logout}>Sair</a>
+        <button className={styles.button} onClick={handleSave}>Salvar</button>
       </div>
     </div>
   );

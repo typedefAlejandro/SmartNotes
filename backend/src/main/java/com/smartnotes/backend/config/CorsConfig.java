@@ -6,8 +6,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@EnableWebMvc
-// Configuração global de CORS para permitir requisições de qualquer origem e método.
+// @EnableWebMvc removido para evitar conflitos de CORS
 public class CorsConfig implements WebMvcConfigurer {
 
     /**

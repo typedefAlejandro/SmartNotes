@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,6 +44,28 @@ public class NoteController {
     return ResponseEntity.ok(createdNote);
   }
 
+  @PutMapping("/update")
+  public ResponseEntity<NoteDTO> update(
+    @RequestBody @Valid NoteDTO note,
+    @RequestHeader("Authorization") String authorizationHeader
+  ) {
+    String token = authorizationHeader.substring(7);
+    authService.validaToken(token);
+    NoteDTO updatedNote = noteRepository.update(note);
+    return ResponseEntity.ok(updatedNote);
+  }
+
+  @DeleteMapping("/delete")
+  public ResponseEntity<Void> delete(
+    @RequestParam Long id,
+    @RequestHeader("Authorization") String authorizationHeader
+  ) {
+    String token = authorizationHeader.substring(7);
+    authService.validaToken(token);
+    noteRepository.deleteById(id);
+    return ResponseEntity.noContent().build();
+  }
+
   @GetMapping("/title")
   public ResponseEntity<List<NoteDTO>> findByUserIdAndTitle(
     @RequestHeader("Authorization") String authorizationHeader,
@@ -63,6 +87,17 @@ public class NoteController {
     String token = authorizationHeader.substring(7);
     authService.validaToken(token);
     List<NoteDTO> notes = noteService.findByUserIdAndContent(userId, content);
+    return ResponseEntity.ok(notes);
+  }
+
+  @GetMapping("/user")
+  public ResponseEntity<List<NoteDTO>> findByUserId(
+    @RequestHeader("Authorization") String authorizationHeader,
+    @RequestParam Long userId
+  ) {
+    String token = authorizationHeader.substring(7);
+    authService.validaToken(token);
+    List<NoteDTO> notes = noteService.findByUserId(userId);
     return ResponseEntity.ok(notes);
   }
 }
