@@ -97,4 +97,8 @@ public class AuthService {
                 .signWith(SignatureAlgorithm.HS512, "segredo-super-seguro")
                 .compact();
     }
+
+    public void validaToken(String token) {
+        Jwts.parser().setSigningKey("segredo-super-seguro").parseClaimsJws(token);
+    }
 }
